@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env psh
 set -euo pipefail
 
 PROJECT="${INPUT_PROJECT_PATH:-.}"
