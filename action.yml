@@ -29,6 +29,10 @@ inputs:
     description: 'Skip build step.'
     required: false
     default: 'false'
+  tests_path:
+    description: 'Go package path for tests (e.g. ./pkg/...). Defaults to ./...'
+    required: false
+    default: './...'
   skip_test:
     description: 'Skip test step.'
     required: false
@@ -127,6 +131,7 @@ runs:
       run: ${{ github.action_path }}/src/step-test.sh
       env:
         INPUT_PROJECT_PATH: ${{ inputs.project_path }}
+        INPUT_TESTS_PATH: ${{ inputs.tests_path }}
         INPUT_LOG_FILE: ${{ inputs.log_file }}
 
     - name: Version
@@ -154,6 +159,7 @@ runs:
         INPUT_PROJECT_PATH: ${{ inputs.project_path }}
         INPUT_LOG_FILE: ${{ inputs.log_file }}
         INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+        GITHUB_SHA: ${{ github.sha }}
 
     - name: Reintegrate
       if: ${{ inputs.skip_reintegration != 'true' }}
