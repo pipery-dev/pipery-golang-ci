@@ -1,0 +1,16 @@
+name: complex-go-project
+description: Verify the action handles a multi-file Go project with interfaces.
+source_path: test-project-with-interfaces
+inputs:
+  project_path: test-project-with-interfaces
+  skip_sast: "true"
+  skip_sca: "true"
+  skip_release: "true"
+  skip_versioning: "true"
+  skip_reintegration: "true"
+expect:
+  log_path: pipery.jsonl
+  success_values: [success, passed, ok, succeeded]
+  required_fields:
+    - name: event
+      value: build
