@@ -12,5 +12,4 @@ fi
 pipery-steps sast \
   --language golang \
   --project-path "$PROJECT" \
-  --log-file "$LOG" \
-  || echo "SAST step completed (non-fatal)"
+  --log-file "$LOG"

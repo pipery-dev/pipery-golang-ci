@@ -78,10 +78,16 @@ runs:
       env:
         INPUT_LOG_FILE: ${{ inputs.log_file }}
 
+    - name: Load config
+      shell: bash
+      run: ${{ github.action_path }}/src/read-config.sh
+      env:
+        INPUT_CONFIG_FILE: ${{ inputs.config_file }}
+
     - name: Install pipery-tooling
       shell: bash
       run: |
-        pip install git+https://github.com/pipery-dev/pipery-tooling.git --quiet || true
+        pip install git+https://github.com/pipery-dev/pipery-tooling.git --quiet
 
     - name: SAST
       if: ${{ inputs.skip_sast != 'true' }}

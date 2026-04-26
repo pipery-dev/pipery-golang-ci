@@ -12,7 +12,7 @@ fi
 NEW_VERSION=$(pipery-steps version \
   --language golang \
   --project-path "$PROJECT" \
-  --bump "${INPUT_VERSION_BUMP:-patch}" 2>&1 | tail -1)
+  --bump "${INPUT_VERSION_BUMP:-patch}")
 
 echo "New version: $NEW_VERSION"
 [ -n "${GITHUB_OUTPUT:-}" ] && echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
