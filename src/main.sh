@@ -19,7 +19,7 @@ echo "Starting Go CI pipeline for: $INPUT_PROJECT_PATH"
 echo "Log file: $INPUT_LOG_FILE"
 
 if [ -f "$ACTION_PATH/src/read-config.sh" ]; then
-  bash "$ACTION_PATH/src/read-config.sh" || true
+  "$ACTION_PATH/src/read-config.sh" || true
 fi
 
 if [ "${INPUT_SKIP_SAST:-false}" != "true" ]; then
