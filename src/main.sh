@@ -18,6 +18,8 @@ fi
 echo "Starting Go CI pipeline for: $INPUT_PROJECT_PATH"
 echo "Log file: $INPUT_LOG_FILE"
 
+"${ACTION_PATH}/src/setup-psh.sh"
+
 if [ -f "$ACTION_PATH/src/read-config.sh" ]; then
   "$ACTION_PATH/src/read-config.sh" || true
 fi
