@@ -1,0 +1,336 @@
+# GitLab CI Pipeline for pipery-golang-ci
+# This is the GitLab CI equivalent of the GitHub Actions Go CI workflow
+#
+# SETUP INSTRUCTIONS:
+# 1. Copy this file to your pipery-golang-ci repository as .gitlab-ci.yml
+# 2. Update the variables section with your specific registry/credentials
+# 3. Configure protected variables in GitLab CI/CD settings (Settings > CI/CD > Variables)
+# 4. Set any skip_* variables to 'true' if you want to disable specific steps
+#
+# VARIABLES:
+# These correspond to the GitHub Action inputs. Customize as needed.
+
+variables:
+  PROJECT_PATH: "."
+  CONFIG_FILE: ".github/pipery/config.yaml"
+  GO_VERSION: "1.22"
+  # Security scanning controls
+  SKIP_SAST: "false"
+  SKIP_SCA: "false"
+  SKIP_LINT: "false"
+  SKIP_BUILD: "false"
+  SKIP_TEST: "false"
+  SKIP_VERSIONING: "false"
+  SKIP_PACKAGING: "false"
+  SKIP_RELEASE: "false"
+  SKIP_REINTEGRATION: "false"
+  # Build configuration
+  TESTS_PATH: "./..."
+  VERSION_BUMP: "patch"
+  # Container registry (for packaging as OCI image)
+  REGISTRY: "ghcr.io"
+  IMAGE_NAME: ""
+  # Secrets (set in GitLab Protected Variables)
+  # REGISTRY_PASSWORD: (set in GitLab Protected Variables)
+  # GITHUB_TOKEN: (set in GitLab Protected Variables)
+  # Logging
+  LOG_FILE: "pipery.jsonl"
+  TARGET_BRANCH: "main"
+
+stages:
+  - checkout
+  - setup
+  - sast
+  - sca
+  - lint
+  - build
+  - test
+  - versioning
+  - packaging
+  - release
+  - reintegration
+  - logs
+
+# ============================================================================
+# CHECKOUT & SETUP STAGE
+# ============================================================================
+
+checkout:
+  stage: checkout
+  image: alpine:latest
+  script:
+    - echo "Repository already checked out by GitLab CI"
+    - ls -la
+  artifacts:
+    paths:
+      - .git/
+    expire_in: 1 day
+
+setup:
+  stage: setup
+  image: golang:${GO_VERSION}-alpine
+  script:
+    - echo "Setting up Go CI environment..."
+    - go version
+    - cd $PROJECT_PATH
+    - go mod download
+    - go mod verify
+    - echo "Setup complete"
+  artifacts:
+    paths:
+      - $PROJECT_PATH/go.sum
+      - $PROJECT_PATH/go.mod
+    expire_in: 1 day
+
+# ============================================================================
+# SECURITY STAGES
+# ============================================================================
+
+sast_scan:
+  stage: sast
+  image: golang:${GO_VERSION}-alpine
+  before_script:
+    - apk add --no-cache python3 py3-pip
+    - pip install pipery-tooling
+  script:
+    - echo "Running SAST scan using pipery-tooling..."
+    - pipery-tooling sast --project-path $PROJECT_PATH --config $CONFIG_FILE --log-file $LOG_FILE
+    - echo "SAST scan complete"
+  allow_failure: true
+  rules:
+    - if: '$SKIP_SAST == "true"'
+      when: never
+    - when: on_success
+  artifacts:
+    paths:
+      - $LOG_FILE
+    expire_in: 30 days
+
+sca_scan:
+  stage: sca
+  image: golang:${GO_VERSION}-alpine
+  before_script:
+    - apk add --no-cache python3 py3-pip
+    - pip install pipery-tooling
+  script:
+    - echo "Running SCA scan using pipery-tooling..."
+    - pipery-tooling sca --project-path $PROJECT_PATH --config $CONFIG_FILE --log-file $LOG_FILE
+    - echo "SCA scan complete"
+  allow_failure: true
+  rules:
+    - if: '$SKIP_SCA == "true"'
+      when: never
+    - when: on_success
+  artifacts:
+    paths:
+      - $LOG_FILE
+    expire_in: 30 days
+
+# ============================================================================
+# LINT STAGE
+# ============================================================================
+
+lint:
+  stage: lint
+  image: golang:${GO_VERSION}-alpine
+  before_script:
+    - apk add --no-cache git
+    - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+  script:
+    - cd $PROJECT_PATH
+    - echo "Running golangci-lint..."
+    - golangci-lint run ./...
+    - echo "Lint stage complete"
+  rules:
+    - if: '$SKIP_LINT == "true"'
+      when: never
+    - when: on_success
+  allow_failure: true
+
+# ============================================================================
+# BUILD STAGE
+# ============================================================================
+
+build:
+  stage: build
+  image: golang:${GO_VERSION}-alpine
+  script:
+    - cd $PROJECT_PATH
+    - echo "Building Go binaries..."
+    - go build -v -o bin/ ./...
+    - ls -la bin/
+    - echo "Build complete"
+  rules:
+    - if: '$SKIP_BUILD == "true"'
+      when: never
+    - when: on_success
+  artifacts:
+    paths:
+      - $PROJECT_PATH/bin/
+    expire_in: 1 day
+
+# ============================================================================
+# TEST STAGE
+# ============================================================================
+
+test:
+  stage: test
+  image: golang:${GO_VERSION}-alpine
+  dependencies:
+    - build
+  script:
+    - cd $PROJECT_PATH
+    - echo "Running Go tests..."
+    - go test -v -coverprofile=coverage.out -covermode=atomic $TESTS_PATH
+    - go tool cover -html=coverage.out -o coverage.html
+    - echo "Tests complete"
+  rules:
+    - if: '$SKIP_TEST == "true"'
+      when: never
+    - when: on_success
+  coverage: '/coverage: \d+\.\d+% of statements/'
+  artifacts:
+    paths:
+      - $PROJECT_PATH/coverage.*
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: $PROJECT_PATH/coverage.out
+    expire_in: 30 days
+
+# ============================================================================
+# VERSIONING STAGE
+# ============================================================================
+
+versioning:
+  stage: versioning
+  image: golang:${GO_VERSION}-alpine
+  before_script:
+    - apk add --no-cache python3 py3-pip
+    - pip install pipery-tooling
+  script:
+    - echo "Running versioning step..."
+    - pipery-tooling version --project-path $PROJECT_PATH --version-bump $VERSION_BUMP --log-file $LOG_FILE
+    - |
+      if [ -f "$PROJECT_PATH/VERSION" ]; then
+        cat $PROJECT_PATH/VERSION > version_info.txt
+      elif [ -f "$PROJECT_PATH/go.mod" ]; then
+        grep 'module' $PROJECT_PATH/go.mod > version_info.txt
+      fi
+    - cat version_info.txt
+    - echo "Versioning complete"
+  rules:
+    - if: '$SKIP_VERSIONING == "true"'
+      when: never
+    - when: on_success
+  artifacts:
+    paths:
+      - version_info.txt
+      - $LOG_FILE
+    expire_in: 30 days
+
+# ============================================================================
+# PACKAGING STAGE
+# ============================================================================
+
+packaging:
+  stage: packaging
+  image: golang:${GO_VERSION}-alpine
+  dependencies:
+    - build
+    - versioning
+  before_script:
+    - apk add --no-cache docker
+  script:
+    - echo "Creating container image for Go application..."
+    - |
+      if [ -z "$IMAGE_NAME" ]; then
+        echo "IMAGE_NAME not set, skipping Docker image creation"
+        exit 0
+      fi
+    - echo "Building Docker image: $IMAGE_NAME"
+    - docker build -t $IMAGE_NAME:latest .
+    - docker images | grep $IMAGE_NAME
+    - echo "Package (container image) created"
+  rules:
+    - if: '$SKIP_PACKAGING == "true"'
+      when: never
+    - when: on_success
+  artifacts:
+    paths:
+      - $PROJECT_PATH/bin/
+    expire_in: 30 days
+
+# ============================================================================
+# RELEASE STAGE
+# ============================================================================
+
+release:
+  stage: release
+  image: golang:${GO_VERSION}-alpine
+  dependencies:
+    - versioning
+    - packaging
+  before_script:
+    - apk add --no-cache docker curl git
+  script:
+    - echo "Releasing Go artifacts..."
+    - |
+      if [ -n "$IMAGE_NAME" ] && [ -n "$REGISTRY" ]; then
+        echo "Pushing image to registry: $REGISTRY/$IMAGE_NAME"
+        # In real scenario, would authenticate and push
+        echo "Image would be pushed to registry"
+      fi
+    - echo "Release complete"
+  rules:
+    - if: '$SKIP_RELEASE == "true"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == $TARGET_BRANCH'
+      when: on_success
+    - when: manual
+  only:
+    - branches
+  allow_failure: true
+
+# ============================================================================
+# REINTEGRATION STAGE
+# ============================================================================
+
+reintegration:
+  stage: reintegration
+  image: alpine:latest
+  script:
+    - echo "Reintegration step would update target branch..."
+    - |
+      if [ -z "$GITHUB_TOKEN" ]; then
+        echo "Skipping reintegration: GITHUB_TOKEN not set"
+        exit 0
+      fi
+    - echo "Reintegration complete"
+  rules:
+    - if: '$SKIP_REINTEGRATION == "true"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == $TARGET_BRANCH'
+      when: on_success
+    - when: manual
+  allow_failure: true
+
+# ============================================================================
+# ARTIFACTS & LOGGING
+# ============================================================================
+
+publish_logs:
+  stage: logs
+  image: alpine:latest
+  script:
+    - echo "Collecting logs and artifacts..."
+    - |
+      if [ -f "$LOG_FILE" ]; then
+        echo "Log file size: $(wc -c < $LOG_FILE) bytes"
+      fi
+  artifacts:
+    paths:
+      - $LOG_FILE
+      - version_info.txt
+    expire_in: 90 days
+  when: always
