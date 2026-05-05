@@ -12,7 +12,7 @@
 
 variables:
   PROJECT_PATH: "."
-  CONFIG_FILE: ".github/pipery/config.yaml"
+  CONFIG_FILE: ".pipery/config.yaml"
   GO_VERSION: "1.22"
   # Security scanning controls
   SKIP_SAST: "false"
