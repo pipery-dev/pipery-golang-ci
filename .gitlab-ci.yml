@@ -14,7 +14,7 @@ variables:
   PROJECT_PATH: "."
   CONFIG_FILE: ".pipery/config.yaml"
   GO_VERSION: "1.22"
-  # Security scanning controls
+  TESTS_PATH: "./..."
   SKIP_SAST: "false"
   SKIP_SCA: "false"
   SKIP_LINT: "false"
@@ -24,16 +24,10 @@ variables:
   SKIP_PACKAGING: "false"
   SKIP_RELEASE: "false"
   SKIP_REINTEGRATION: "false"
-  # Build configuration
-  TESTS_PATH: "./..."
   VERSION_BUMP: "patch"
-  # Container registry (for packaging as OCI image)
   REGISTRY: "ghcr.io"
   IMAGE_NAME: ""
-  # Secrets (set in GitLab Protected Variables)
-  # REGISTRY_PASSWORD: (set in GitLab Protected Variables)
-  # GITHUB_TOKEN: (set in GitLab Protected Variables)
-  # Logging
+  GITHUB_TOKEN: ""
   LOG_FILE: "pipery.jsonl"
   TARGET_BRANCH: "main"
 
@@ -263,7 +257,9 @@ release:
     INPUT_PROJECT_PATH: $PROJECT_PATH
     INPUT_REGISTRY: $REGISTRY
     INPUT_IMAGE_NAME: $IMAGE_NAME
+    INPUT_GITHUB_TOKEN: $GITHUB_TOKEN
     INPUT_LOG_FILE: $LOG_FILE
+    GITHUB_SHA: $CI_COMMIT_SHA
   rules:
     - if: '$SKIP_RELEASE == "true"'
       when: never
@@ -287,7 +283,7 @@ reintegration:
   env:
     INPUT_PROJECT_PATH: $PROJECT_PATH
     INPUT_LOG_FILE: $LOG_FILE
-    INPUT_TARGET_BRANCH: $TARGET_BRANCH
+    INPUT_GITHUB_TOKEN: $GITHUB_TOKEN
     GITHUB_TOKEN: $GITHUB_TOKEN
   rules:
     - if: '$SKIP_REINTEGRATION == "true"'
