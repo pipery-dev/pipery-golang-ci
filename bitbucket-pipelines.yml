@@ -39,33 +39,27 @@ definitions:
 
     - step: &sast-scan
         name: SAST Security Scan
-        image: golang:1.22-alpine
+        image: python:3.11-alpine
         script:
-          - echo "Running SAST scan using pipery-tooling..."
-          - apk add --no-cache python3 py3-pip
-          - pip install --quiet pipery-tooling
-          - |
-            pipery-tooling sast \
-              --project-path ${PROJECT_PATH:-.} \
-              --config ${CONFIG_FILE:-.pipery/config.yaml} \
-              --log-file ${LOG_FILE:-pipery.jsonl}
-          - echo "SAST scan complete"
+          # Refactored: Call shared script instead of inline logic
+          - bash ./src/step-sast.sh
+        env:
+          INPUT_PROJECT_PATH: ${PROJECT_PATH:-.}
+          INPUT_CONFIG_FILE: ${CONFIG_FILE:-.pipery/config.yaml}
+          INPUT_LOG_FILE: ${LOG_FILE:-pipery.jsonl}
         artifacts:
           - ${LOG_FILE:-pipery.jsonl}
 
     - step: &sca-scan
         name: SCA Dependency Scan
-        image: golang:1.22-alpine
+        image: python:3.11-alpine
         script:
-          - echo "Running SCA scan using pipery-tooling..."
-          - apk add --no-cache python3 py3-pip
-          - pip install --quiet pipery-tooling
-          - |
-            pipery-tooling sca \
-              --project-path ${PROJECT_PATH:-.} \
-              --config ${CONFIG_FILE:-.pipery/config.yaml} \
-              --log-file ${LOG_FILE:-pipery.jsonl}
-          - echo "SCA scan complete"
+          # Refactored: Call shared script instead of inline logic
+          - bash ./src/step-sca.sh
+        env:
+          INPUT_PROJECT_PATH: ${PROJECT_PATH:-.}
+          INPUT_CONFIG_FILE: ${CONFIG_FILE:-.pipery/config.yaml}
+          INPUT_LOG_FILE: ${LOG_FILE:-pipery.jsonl}
         artifacts:
           - ${LOG_FILE:-pipery.jsonl}
 
