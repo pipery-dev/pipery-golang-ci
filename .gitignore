@@ -9,3 +9,4 @@ test-project/hello-pipery-go
 test-project-with-interfaces/hello-pipery-interfaces
 test-project-failing-tests/hello-broken-tests
 *.exe
+*.bak
