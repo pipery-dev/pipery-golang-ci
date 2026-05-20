@@ -9,9 +9,11 @@ if ! command -v pipery-steps &>/dev/null; then
   exit 0
 fi
 
-NEW_VERSION=$(pipery-steps version \
-  --language golang \
+NEW_VERSION=$(pipery-steps \
   --project-path "$PROJECT" \
+  --log-file "$LOG" \
+  version \
+  --language golang \
   --bump "${INPUT_VERSION_BUMP:-patch}")
 
 echo "New version: $NEW_VERSION"

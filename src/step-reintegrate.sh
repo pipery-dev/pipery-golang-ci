@@ -16,6 +16,7 @@ fi
 
 export GITHUB_TOKEN="$TOKEN"
 
-pipery-steps reintegrate \
+pipery-steps \
   --log-file "$LOG" \
+  reintegrate \
   || echo "Reintegration step completed (non-fatal)"

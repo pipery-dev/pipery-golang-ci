@@ -9,7 +9,8 @@ if ! command -v pipery-steps &>/dev/null; then
   exit 0
 fi
 
-pipery-steps sast \
-  --language golang \
+pipery-steps \
   --project-path "$PROJECT" \
-  --log-file "$LOG"
+  --log-file "$LOG" \
+  sast \
+  --language golang

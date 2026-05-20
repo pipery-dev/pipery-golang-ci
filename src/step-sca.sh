@@ -9,8 +9,9 @@ if ! command -v pipery-steps &>/dev/null; then
   exit 0
 fi
 
-pipery-steps sca \
-  --language golang \
+pipery-steps \
   --project-path "$PROJECT" \
   --log-file "$LOG" \
+  sca \
+  --language golang \
   || echo "SCA step completed (non-fatal)"
