@@ -5,7 +5,7 @@ TOKEN="${INPUT_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}"
 SHORT_SHA="${GITHUB_SHA:-}"
 SHORT_SHA="${SHORT_SHA:0:7}"
 
-if [ -z "$TOKEN" ] || [ -z "${GITHUB_REF_NAME:-}" ]; then
+if [ -z "$TOKEN" ] || { [ "${GITHUB_REF_TYPE:-}" != "tag" ] && [[ "${GITHUB_REF:-}" != refs/tags/* ]]; }; then
   echo "No GITHUB_TOKEN or not on a tag, skipping release."
   exit 0
 fi
