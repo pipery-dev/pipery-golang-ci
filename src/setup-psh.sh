@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if command -v psh &>/dev/null; then
-  echo "psh already installed: $(command -v psh)"
+if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+  # The Go psh binary can hit newosproc failures on hosted GitHub runners.
+  # Use a bash-compatible shim so step scripts keep their psh shebang contract.
+  mkdir -p /tmp/pipery-actions-bin
+  printf '#!/bin/bash\nexec bash "$@"\n' > /tmp/pipery-actions-bin/psh
+  chmod +x /tmp/pipery-actions-bin/psh
+  echo "/tmp/pipery-actions-bin" >> "$GITHUB_PATH"
+  echo "psh shim installed for GitHub Actions runner compatibility."
   exit 0
 fi
 
