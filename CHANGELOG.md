@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 - _Nothing yet._
 
+## [1.0.8]
+
+- _Nothing yet._
+
 ## [1.0.7]
 
 - _Nothing yet._

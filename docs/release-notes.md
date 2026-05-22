@@ -1,10 +1,10 @@
-# Release v1.0.7
+# Release v1.0.8
 
 Repository: `pipery-dev/pipery-golang-ci`
 
 ## Deployment
 
-Reference this release as `pipery-dev/pipery-golang-ci@v1.0.7`, `pipery-dev/pipery-golang-ci@v1.0`, or `pipery-dev/pipery-golang-ci@v1`.
+Reference this release as `pipery-dev/pipery-golang-ci@v1.0.8`, `pipery-dev/pipery-golang-ci@v1.0`, or `pipery-dev/pipery-golang-ci@v1`.
 
 ## Changelog
 
@@ -13,6 +13,10 @@ Reference this release as `pipery-dev/pipery-golang-ci@v1.0.7`, `pipery-dev/pipe
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+- _Nothing yet._
+
+## [1.0.8]
 
 - _Nothing yet._
 
