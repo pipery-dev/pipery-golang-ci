@@ -7,7 +7,8 @@ mkdir -p dist
 TARGET_PLATFORMS="${INPUT_TARGET_PLATFORMS:-linux/amd64,darwin/amd64,windows/amd64}"
 
 _platforms() {
-  printf '%s\n' "$TARGET_PLATFORMS" | tr ', ' '\n\n' | sed '/^$/d'
+  printf '%s\n' "$TARGET_PLATFORMS" | sed 's/[[:space:],][[:space:],]*/\
+/g; /^$/d'
 }
 
 COMMANDS=()
