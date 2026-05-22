@@ -1,10 +1,10 @@
-# Release v1.0.0
+# Release v1.0.6
 
 Repository: `pipery-dev/pipery-golang-ci`
 
 ## Deployment
 
-Reference this release as `pipery-dev/pipery-golang-ci@v1.0.0`, `pipery-dev/pipery-golang-ci@v1.0`, or `pipery-dev/pipery-golang-ci@v1`.
+Reference this release as `pipery-dev/pipery-golang-ci@v1.0.6`, `pipery-dev/pipery-golang-ci@v1.0`, or `pipery-dev/pipery-golang-ci@v1`.
 
 ## Changelog
 
@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 - _Nothing yet._
+
+## [1.0.6]
+
+- Added `target_platforms` input for explicit Go cross-platform compilation and package targets.
 
 ## [1.0.0]
 

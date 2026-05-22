@@ -25,4 +25,22 @@ jobs:
       - uses: pipery-dev/pipery-golang-ci@v1
         with:
           project_path: .
+          config_file: .pipery/config.yaml
+          go_version: 1.22
+          skip_sast: false
+          skip_sca: false
+          skip_lint: false
+          skip_build: false
+          tests_path: ./...
+          target_platforms: 
+          skip_test: false
+          skip_versioning: false
+          skip_packaging: false
+          skip_release: false
+          skip_reintegration: false
+          version_bump: patch
+          github_token: 
+          log_file: pipery.jsonl
+          registry: ghcr.io
+          image_name: 
 ```
