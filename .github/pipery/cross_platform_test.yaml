@@ -1,0 +1,21 @@
+name: cross-platform-compilation
+description: Verify Go cross-platform build and package targets are honored.
+source_path: test-project
+inputs:
+  project_path: test-project
+  target_platforms: linux/amd64,windows/amd64
+  skip_sast: "true"
+  skip_sca: "true"
+  skip_lint: "true"
+  skip_test: "true"
+  skip_versioning: "true"
+  skip_release: "true"
+  skip_reintegration: "true"
+expect:
+  log_path: pipery.jsonl
+  success_values: [success, passed, ok, succeeded]
+  required_fields:
+    - name: event
+      value: cross_compile
+    - name: target
+      value: windows/amd64

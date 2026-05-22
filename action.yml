@@ -33,6 +33,10 @@ inputs:
     description: 'Go package path for tests (e.g. ./pkg/...). Defaults to ./...'
     required: false
     default: './...'
+  target_platforms:
+    description: 'Comma or whitespace separated GOOS/GOARCH targets for cross-platform compilation, e.g. linux/amd64,darwin/arm64,windows/amd64. Empty builds the host platform.'
+    required: false
+    default: ''
   skip_test:
     description: 'Skip test step.'
     required: false
@@ -123,6 +127,7 @@ runs:
       run: ${{ github.action_path }}/src/step-build.sh
       env:
         INPUT_PROJECT_PATH: ${{ inputs.project_path }}
+        INPUT_TARGET_PLATFORMS: ${{ inputs.target_platforms }}
         INPUT_LOG_FILE: ${{ inputs.log_file }}
 
     - name: Test
@@ -149,6 +154,7 @@ runs:
       run: ${{ github.action_path }}/src/step-package.sh
       env:
         INPUT_PROJECT_PATH: ${{ inputs.project_path }}
+        INPUT_TARGET_PLATFORMS: ${{ inputs.target_platforms }}
         INPUT_LOG_FILE: ${{ inputs.log_file }}
 
     - name: Release

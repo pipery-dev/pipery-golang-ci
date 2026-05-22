@@ -56,6 +56,7 @@ jobs:
 | `config_file` | `.pipery/config.yaml` | Path to Pipery config file. |
 | `go_version` | `1.22` | Go version to use (e.g., `1.20`, `1.22`, `1.23`). |
 | `tests_path` | `./...` | Go package path for tests (e.g., `./pkg/...`). |
+| `target_platforms` | `` | Comma or whitespace separated `GOOS/GOARCH` targets for cross-platform compilation, e.g. `linux/amd64,darwin/arm64,windows/amd64`. Empty builds the host platform; packaging defaults to `linux/amd64,darwin/amd64,windows/amd64`. |
 | `version_bump` | `patch` | Version bump type: `patch`, `minor`, or `major`. |
 | `github_token` | `` | GitHub token for release and reintegration. |
 | `registry` | `ghcr.io` | Container registry for packaging. |
@@ -101,7 +102,17 @@ jobs:
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### Example 3: Skip security scanning
+### Example 3: Cross-platform binaries
+
+```yaml
+- uses: pipery-dev/pipery-golang-ci@v1
+  with:
+    project_path: .
+    target_platforms: linux/amd64,linux/arm64,darwin/arm64,windows/amd64
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Example 4: Skip security scanning
 
 ```yaml
 - uses: pipery-dev/pipery-golang-ci@v1
@@ -112,7 +123,7 @@ jobs:
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### Example 4: Go 1.20 with binary release
+### Example 5: Go 1.20 with binary release
 
 ```yaml
 - uses: pipery-dev/pipery-golang-ci@v1
@@ -122,7 +133,7 @@ jobs:
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### Example 5: Docker image packaging
+### Example 6: Docker image packaging
 
 ```yaml
 - uses: pipery-dev/pipery-golang-ci@v1

@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-- _Nothing yet._
+- Added `target_platforms` input for explicit Go cross-platform compilation and package targets.
 
 ## [1.0.0]
 

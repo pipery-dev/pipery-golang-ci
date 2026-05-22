@@ -65,6 +65,12 @@ required = false
 default = "./..."
 
 [[inputs]]
+name = "target_platforms"
+description = "Comma or whitespace separated GOOS/GOARCH targets for cross-platform compilation, e.g. linux/amd64,darwin/arm64,windows/amd64. Empty builds the host platform."
+required = false
+default = ""
+
+[[inputs]]
 name = "skip_test"
 description = "Skip test step."
 required = false
