@@ -7,7 +7,7 @@ CI pipeline for Go: SAST, SCA, lint, build, test, versioning, packaging, release
 - Owner: `pipery-dev`
 - Repository: `pipery-golang-ci`
 - Marketplace category: `continuous-integration`
-- Current version: `1.0.6`
+- Current version: `1.0.7`
 
 ## Usage
 

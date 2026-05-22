@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 - _Nothing yet._
 
+## [1.0.7]
+
+- _Nothing yet._
+
 ## [1.0.6]
 
 - Added `target_platforms` input for explicit Go cross-platform compilation and package targets.
