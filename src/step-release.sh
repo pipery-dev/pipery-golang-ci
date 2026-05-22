@@ -13,6 +13,21 @@ fi
 export GITHUB_TOKEN="$TOKEN"
 
 RELEASE_TITLE="${GITHUB_REF_NAME}${SHORT_SHA:+ (sha-${SHORT_SHA})}"
+ASSETS=()
+if [ -d dist ]; then
+  while IFS= read -r -d '' asset; do
+    ASSETS+=("$asset")
+  done < <(find dist -type f -print0)
+fi
 
-gh release create "${GITHUB_REF_NAME}" dist/**/* --generate-notes --title "$RELEASE_TITLE" \
-  || echo "Release create failed (may already exist)"
+if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+  if [ "${#ASSETS[@]}" -gt 0 ]; then
+    gh release upload "${GITHUB_REF_NAME}" "${ASSETS[@]}" --clobber
+  fi
+else
+  if [ "${#ASSETS[@]}" -gt 0 ]; then
+    gh release create "${GITHUB_REF_NAME}" "${ASSETS[@]}" --generate-notes --title "$RELEASE_TITLE"
+  else
+    gh release create "${GITHUB_REF_NAME}" --generate-notes --title "$RELEASE_TITLE"
+  fi
+fi

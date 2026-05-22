@@ -41,7 +41,8 @@ for PLATFORM in $(_platforms); do
   for COMMAND in "${COMMANDS[@]}"; do
     NAME="$(basename "$COMMAND")"
     [ "$COMMAND" = "." ] && NAME="$(basename "$(pwd)")"
-    GOOS="$OS" GOARCH="$ARCH" go build -v -o "dist/${OS}-${ARCH}/${NAME}${EXT}" "./${COMMAND#./}"
-    printf '{"event":"cross_compile","status":"success","language":"golang","target":"%s/%s","artifact":"%s"}\n' "$OS" "$ARCH" "dist/${OS}-${ARCH}/${NAME}${EXT}" >> "${INPUT_LOG_FILE:-pipery.jsonl}"
+    ARTIFACT="dist/${OS}-${ARCH}/${NAME}-${OS}-${ARCH}${EXT}"
+    GOOS="$OS" GOARCH="$ARCH" go build -v -o "$ARTIFACT" "./${COMMAND#./}"
+    printf '{"event":"cross_compile","status":"success","language":"golang","target":"%s/%s","artifact":"%s"}\n' "$OS" "$ARCH" "$ARTIFACT" >> "${INPUT_LOG_FILE:-pipery.jsonl}"
   done
 done
