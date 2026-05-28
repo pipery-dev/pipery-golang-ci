@@ -70,6 +70,11 @@ if [ "${INPUT_SKIP_RELEASE:-false}" != "true" ]; then
   "$ACTION_PATH/src/step-release.sh" || true
 fi
 
+if [ "${INPUT_RELEASE_DOCKER_IMAGE:-false}" = "true" ]; then
+  echo "--- Step: Docker Release ---"
+  "$ACTION_PATH/src/step-docker-release.sh"
+fi
+
 if [ "${INPUT_SKIP_REINTEGRATION:-false}" != "true" ]; then
   echo "--- Step: Reintegrate ---"
   "$ACTION_PATH/src/step-reintegrate.sh" || true

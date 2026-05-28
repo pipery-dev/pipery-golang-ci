@@ -130,6 +130,66 @@ description = "Container image name."
 required = false
 default = ""
 
+[[inputs]]
+name = "release_docker_image"
+description = "Build and push a Docker image for the application."
+required = false
+default = "false"
+
+[[inputs]]
+name = "docker_registry"
+description = "Docker registry host used for login and image prefix."
+required = false
+default = "ghcr.io"
+
+[[inputs]]
+name = "docker_image"
+description = "Docker image name without tag. Defaults to image_name, then the GitHub repository."
+required = false
+default = ""
+
+[[inputs]]
+name = "docker_tags"
+description = "Comma, space, or newline separated Docker tags. Defaults to sha-<short sha>."
+required = false
+default = ""
+
+[[inputs]]
+name = "docker_context"
+description = "Docker build context, relative to project_path unless absolute."
+required = false
+default = "."
+
+[[inputs]]
+name = "dockerfile"
+description = "Dockerfile path, relative to project_path unless absolute."
+required = false
+default = "Dockerfile"
+
+[[inputs]]
+name = "docker_platforms"
+description = "Comma separated Docker target platforms for buildx, e.g. linux/amd64,linux/arm64. Empty uses a regular Docker build for the runner platform."
+required = false
+default = ""
+
+[[inputs]]
+name = "docker_username"
+description = "Docker registry username. For ghcr.io this is usually the GitHub actor."
+required = false
+default = ""
+
+[[inputs]]
+name = "docker_password"
+description = "Docker registry password or token."
+required = false
+default = ""
+
+[[inputs]]
+name = "docker_push_latest"
+description = "Also tag and push latest."
+required = false
+default = "false"
+
 [[test_log_required_fields]]
 name = "event"
 value = "build"

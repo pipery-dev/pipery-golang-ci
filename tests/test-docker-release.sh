@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/pipery-go-docker.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+PROJECT="${TMP_DIR}/project"
+FAKE_BIN="${TMP_DIR}/bin"
+CALLS="${TMP_DIR}/docker-calls.log"
+mkdir -p "$PROJECT" "$FAKE_BIN"
+touch "$PROJECT/Dockerfile"
+
+cat > "${FAKE_BIN}/docker" <<'SCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s ' "$0" "$@" >> "${PIPERY_FAKE_DOCKER_CALLS}"
+printf '\n' >> "${PIPERY_FAKE_DOCKER_CALLS}"
+if [ "${1:-}" = "login" ]; then
+  cat >/dev/null
+fi
+SCRIPT
+chmod +x "${FAKE_BIN}/docker"
+
+export PATH="${FAKE_BIN}:$PATH"
+export PIPERY_FAKE_DOCKER_CALLS="$CALLS"
+export INPUT_PROJECT_PATH="$PROJECT"
+export INPUT_LOG_FILE="${TMP_DIR}/pipery.jsonl"
+export INPUT_DOCKER_REGISTRY="registry.example.com"
+export INPUT_DOCKER_IMAGE="team/api"
+export INPUT_DOCKER_TAGS="1.2.3,sha-test"
+export INPUT_DOCKER_CONTEXT="."
+export INPUT_DOCKERFILE="Dockerfile"
+export INPUT_DOCKER_USERNAME="ci-user"
+export INPUT_DOCKER_PASSWORD="ci-token"
+export INPUT_DOCKER_PUSH_LATEST="true"
+export GITHUB_SHA="abc123456789"
+
+bash "${ROOT}/src/step-docker-release.sh"
+
+grep -F "docker login registry.example.com --username ci-user --password-stdin" "$CALLS" >/dev/null
+grep -F -- "-t registry.example.com/team/api:1.2.3" "$CALLS" >/dev/null
+grep -F -- "-t registry.example.com/team/api:sha-test" "$CALLS" >/dev/null
+grep -F -- "-t registry.example.com/team/api:latest" "$CALLS" >/dev/null
+grep -F "docker push registry.example.com/team/api:1.2.3" "$CALLS" >/dev/null
+grep -F "docker push registry.example.com/team/api:sha-test" "$CALLS" >/dev/null
+grep -F "docker push registry.example.com/team/api:latest" "$CALLS" >/dev/null
+
+export INPUT_DOCKER_PLATFORMS="linux/amd64,linux/arm64"
+>"$CALLS"
+
+bash "${ROOT}/src/step-docker-release.sh"
+
+grep -F "docker buildx version" "$CALLS" >/dev/null
+grep -F "docker buildx build --platform linux/amd64,linux/arm64" "$CALLS" >/dev/null
+grep -F -- "--push" "$CALLS" >/dev/null
+if grep -F "docker push registry.example.com/team/api" "$CALLS" >/dev/null; then
+  echo "docker push should not be called separately for buildx platform builds" >&2
+  exit 1
+fi
+
+grep -F '"event":"docker_release","status":"success","image":"registry.example.com/team/api"' "${INPUT_LOG_FILE}" >/dev/null
+
+echo "go docker release script test passed"

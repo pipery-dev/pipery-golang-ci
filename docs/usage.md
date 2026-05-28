@@ -43,4 +43,14 @@ jobs:
           log_file: pipery.jsonl
           registry: ghcr.io
           image_name: 
+          release_docker_image: false
+          docker_registry: ghcr.io
+          docker_image: 
+          docker_tags: 
+          docker_context: .
+          dockerfile: Dockerfile
+          docker_platforms: 
+          docker_username: 
+          docker_password: 
+          docker_push_latest: false
 ```

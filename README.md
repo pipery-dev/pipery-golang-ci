@@ -66,6 +66,16 @@ jobs:
 | `log_file` | no | `pipery.jsonl` | Path to the JSONL log file written during the run. |
 | `registry` | no | `ghcr.io` | Container registry for packaging. |
 | `image_name` | no | `` | Container image name. |
+| `release_docker_image` | no | `false` | Build and push a Docker image for the application. |
+| `docker_registry` | no | `ghcr.io` | Docker registry host used for login and image prefix. |
+| `docker_image` | no | `` | Docker image name without tag. Defaults to image_name, then the GitHub repository. |
+| `docker_tags` | no | `` | Comma, space, or newline separated Docker tags. Defaults to sha-<short sha>. |
+| `docker_context` | no | `.` | Docker build context, relative to project_path unless absolute. |
+| `dockerfile` | no | `Dockerfile` | Dockerfile path, relative to project_path unless absolute. |
+| `docker_platforms` | no | `` | Comma separated Docker target platforms for buildx, e.g. linux/amd64,linux/arm64. Empty uses a regular Docker build for the runner platform. |
+| `docker_username` | no | `` | Docker registry username. For ghcr.io this is usually the GitHub actor. |
+| `docker_password` | no | `` | Docker registry password or token. |
+| `docker_push_latest` | no | `false` | Also tag and push latest. |
 
 ## Outputs
 
